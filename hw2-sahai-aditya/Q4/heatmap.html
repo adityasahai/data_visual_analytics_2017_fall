@@ -1,0 +1,279 @@
+<meta charset="utf-8">
+<html>
+<head></head>
+<body>
+
+<style>
+h1 {
+	font: 20px Courier;
+}
+.season {
+	font: 14px Courier;
+	font-weight: bold;
+	padding-right: 10px;
+
+}
+.seasons {
+	margin-bottom: 50px;
+	position: absolute;
+	right: 50%;
+}
+
+.svg {
+	margin: auto;
+	display: block;
+	padding-top: 30px;
+}
+
+body {
+  font: 10px sans-serif;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.tile {
+  shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: none;
+  shape-rendering: crispEdges;
+}
+.tick text {
+	font: 14px Courier;
+}
+.scaleTitle {
+	font: 16px Courier;
+	font-weight: bold;
+}
+.scaleTitleSmall {
+	font: 9px Courier;
+	font-weight: bold;
+}
+
+</style>
+
+<script src="../lib/d3.v3.min.js"></script>
+
+<script>
+function populateData() {
+	obj.forEach(function(d) {
+		var jsonData = {};
+		var season = parseInt(d.season);
+		var episode = parseInt(d.episode);
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		// Baratheon
+		jsonData["familyID"] = 1;
+		jsonData["app"] = parseInt(d.Baratheon);
+		data.episodes.push(jsonData);
+		// Greyjoy
+		var jsonData = {}
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		jsonData["familyID"] = 2;
+		jsonData["app"] = parseInt(d.Greyjoy);
+		data.episodes.push(jsonData);
+		// Lannister
+		var jsonData = {}
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		jsonData["familyID"] = 3;
+		jsonData["app"] = parseInt(d.Lannister);
+		data.episodes.push(jsonData);
+		// Martell
+		var jsonData = {}
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		jsonData["familyID"] = 4;
+		jsonData["app"] = parseInt(d.Martell);
+		data.episodes.push(jsonData);
+		// Stark
+		var jsonData = {}
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		jsonData["familyID"] = 5;
+		jsonData["app"] = parseInt(d.Stark);
+		data.episodes.push(jsonData);
+		// Targaryen
+		var jsonData = {}
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		jsonData["familyID"] = 6;
+		jsonData["app"] = parseInt(d.Targaryen);
+		data.episodes.push(jsonData);
+		// Tyrell
+		var jsonData = {}
+		jsonData["season"] = season;
+		jsonData["episode"] = episode;
+		jsonData["familyID"] = 7;
+		jsonData["app"] = parseInt(d.Tyrell);
+		data.episodes.push(jsonData);
+	});
+}
+
+function plotData(season) {	
+
+	d3.select("svg").html("");
+
+	// Calculate max appearances
+	var max_app = 0;
+	for (var i = 0; i < data.episodes.length; i++) {
+		if (data.episodes[i].app > max_app && data.episodes[i].season == season) {
+			max_app = data.episodes[i].app;
+		}
+	}
+
+	var families = ["Baratheon","Greyjoy","Lannister","Martell","Stark","Targaryen","Tyrell"];
+	var x_scale = d3.scale.linear().domain([1, 10]).range([100, 800]);
+	var y_scale = d3.scale.linear().domain([1, 7]).range([450, 50]);
+	
+	var buckets = [];
+	var counter = max_app / 8;
+	var val = 0;
+	for (var i = 0; i < 8; i++) {
+		if (i == 7)
+			buckets[i] = max_app;
+		else {
+			buckets[i] = val;
+			val = val + counter;
+		}
+	}
+	var range = ["#fff7f3","#fde0dd","#fcc5c0","#fa9fb5","#f768a1","#dd3497","#ae017e","#7a0177","#49006a"]
+	var color_scale = d3.scale.threshold().domain(buckets).range(range);
+
+	svg.selectAll(".tile")
+		.data(data.episodes)
+		.enter().append("rect")
+		.attr("class", "tile")
+		.filter(function(d) {
+			return d.season == season;
+		})
+		.attr("x", function(d) { return x_scale(parseInt(d.episode)); })
+		.attr("y", function(d) { return y_scale(parseInt(d.familyID));})
+		.attr("width", "50")
+		.attr("height", "50")
+		.attr("app", function(d) { return d.app; })
+		.attr("episode", function(d) { return d.episode; })
+		.attr("familyID", function(d) { return d.familyID; })
+		.style("fill", function(d) { return color_scale(d.app)});
+
+	// Add axis names
+	svg.append("text").text("Episodes").attr("x", "750").attr("y", svg_height - 65).attr("class", "scaleTitle");
+	svg.append("text").text("House").attr("x", "25").attr("y", "50").attr("class", "scaleTitle");
+	svg.append("text").text("Num. Of Appearances").attr("x", svg_width - 120).attr("y", "60").attr("class", "scaleTitleSmall");
+
+	// Add scales to the plot
+	var axis_x = d3.svg.axis().scale(x_scale).orient("bottom");
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left").ticks(7)
+		.tickFormat(function(d) { return families[d-1]; });
+
+	svg.append("g").attr("class", "axis").attr("transform", "translate(" + 100 + ", 25)").call(axis_y);
+	svg.append("g").attr("class", "axis").attr("transform", "translate(25, " + String(svg_height - 100) + ")").call(axis_x);
+
+	// Display legend
+	var i = 20;
+	var start = 50;
+	svg.append("g")
+		.attr("class", "legend")
+		.selectAll("rect")
+		.data(range)
+		.enter()
+		.append("rect")
+		.attr("height", 20)
+		.attr("y", function() { start = start + i; return start; })
+		.attr("x", svg_width - 75)
+		.attr("width", 20)
+		.style("fill", function(d) { return d; });
+
+	text_data = [];
+	for (var i = 0; i < range.length; i++) {
+		var text = "";
+		if (i == 0) text = "0";
+		else if (i == range.length - 1) text = ">=" + d3.max(buckets);
+		else {
+			a = color_scale.invertExtent(range[i]);
+			if (a[0] == 0) a[0] = 1;
+			text = Math.floor(a[0]) + "-" + Math.floor(a[1] - 1) ; 
+		}
+		text_data.push(text);
+	}
+
+	text = svg.append("text")
+		// .attr("x", svg_width - 450)
+		.attr("y", 65)
+		.attr("class", "legend");
+		// .selectAll("tspan")
+		// .data(text_data)
+		// .enter()
+		// .text(function(d) { return d; })
+		// .attr("dy", "0.2em");
+	for (var i = 0; i < text_data.length; i++) {
+		text.append("tspan")
+			.attr("dy", "20px")
+			.attr("x", svg_width - 50)
+			.text(text_data[i]);
+	}
+}
+
+// Load File
+var obj = [];
+d3.csv("heatmap.csv", function(d) {
+	obj = d;
+});
+
+var data = {
+	episodes : []
+};
+
+var options = ["1", "2", "3", "4", "5", "6"];
+
+d3.select('body')
+  .append("div")
+  .attr("class", "seasons");
+
+d3.select(".seasons")
+	.append("h1")
+	.text("A Song of Ice and Fire");
+
+d3.select(".seasons")
+	.append("text")
+	.text("Season")
+	.attr("class", "season");
+
+var select =   d3.select(".seasons")
+	.append('select')
+  	.attr('class','select')
+    .on('change',onchange);
+
+
+var options = select
+  .selectAll('option')
+	.data(options).enter()
+	.append('option')
+		.text(function (d) { return d; });
+
+function onchange() {
+	selectValue = d3.select('select').property("value");
+	plotData(parseInt(selectValue));
+}
+
+setTimeout(function() { populateData(); }, 500);
+setTimeout(function() { plotData(1); }, 1000);
+
+svg_height = 600;
+svg_width = 1000;
+
+var svg = d3.select("body")
+				.append("svg")
+				.attr("width", svg_width)
+				.attr("height", svg_height)
+				.attr("class", "svg");
+</script>
+
+</body>
+</html>

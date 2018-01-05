@@ -1,0 +1,1 @@
+ I chose to display three different graphs with the thickness varying over time based on the population affected by each crime. I was trying to emphasize the fall in crime rate individually, as if you show all the charts in one graph, some gradients overpower the others. 

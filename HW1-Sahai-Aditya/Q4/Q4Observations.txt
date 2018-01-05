@@ -1,0 +1,17 @@
+c) i) please check graph. some 500+ rows were deleted.
+
+c) ii) GREL expression used - value.toDate('yyyy-MM-dd').toString('EEEE, MMMM DD, YYYY')
+
+c) iii) 
+nominal data - 'propertyzoningdesc'
+ordinal data - None
+
+c) iv)
+GREL Expression to add new column with the given condition
+value.toNumber() > 3.0
+
+c) v)
+value.replaceChars('*', '')
+
+c) vi)
+the extract history tool. This tool lets us extract the steps we performed in curating one project in the form of JSON and apply it to another project. This could be very helpful when we have to work with multiple projects one after the other. We need only curate one and just carry forward the changes to all subsequent projects. 

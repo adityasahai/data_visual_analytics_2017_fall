@@ -1,0 +1,1 @@
+It might be useful to use square root or logarithmic scales on charts when values in one axis increase at a much faster rate then the values on the other axis. Depending on how fast, we can use square root or logarithmic scales.

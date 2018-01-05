@@ -1,0 +1,190 @@
+<meta charset="utf-8">
+
+<html>
+<head></head>
+<body></body>
+<style>
+.axis path,
+.axis line {
+  fill: none;
+  stroke: none;
+  shape-rendering: crispEdges;
+}
+.axis {
+	font-family: Courier;
+}
+.money {
+	fill: white;
+	font-family: Courier;
+}
+.flow-chart {
+    fill: none;
+    stroke: gray;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+    font-family: Courier;
+    font-size: 13px;
+}
+.tile {
+	fill: teal;
+}
+.tile:hover {
+	fill: purple;
+}
+path {
+	stroke: teal;
+	stroke-width: 3;
+}
+</style>
+
+<script src="../lib/d3.v3.min.js"></script>
+<script>
+function plotSmallChart(club) {
+	var data = indiData[club];
+	var years = [];
+	var money_values = [];
+	data.forEach(function(d) {
+		years.push(parseInt(d.year));
+		money_values.push(d.rate);
+	});
+
+	x_scale = d3.scale.linear().domain([d3.min(years), d3.max(years)]).range([0, 200]);
+	y_scale = d3.scale.linear().domain([d3.min(money_values), d3.max(money_values)]).range([200, 0]).nice();
+
+	var line = d3.svg.line().x(function(d) { return x_scale(parseInt(d.year)); })
+							.y(function(d) { return y_scale(d.rate); });
+
+	svg.select(".flow-chart")
+		.html("");
+
+	svg.select(".flow-chart")
+		.data(data)
+		.append("path")
+		.attr("class", "line")
+		.attr("d", line(data))
+		.attr("transform", "translate(1100, 10)");
+
+	// Add axes
+	var x_axis = d3.svg.axis().scale(x_scale).orient("bottom").tickFormat(function(d) { return String(d).replace(",", ""); }).ticks(5);
+	var y_axis = d3.svg.axis().scale(y_scale).orient("left").ticks(5);
+
+	svg.select(".flow-chart")
+		.append("g")
+		.attr("class", "small_axis")
+		.attr("transform", "translate(1100, 210)")
+		.call(x_axis);
+
+	svg.select(".flow-chart")
+		.append("g")
+		.attr("class", "small_axis")
+		.attr("transform", "translate(1100, 10)")
+		.call(y_axis);
+
+	svg.select(".flow-chart")
+		.append("text")
+		.text("Year")
+		.attr("transform", "translate(1300, 250)");
+
+	svg.select(".flow-chart")
+		.append("text")
+		.text("Value")
+		.attr("transform", "translate(1035, 50), rotate(270)");		
+
+}
+
+function plotData() {
+
+	var dollar_val = [];
+	var clubs = [];
+	var count = 0;
+	
+	commulativeData.forEach( function(d) {
+		dollar_val.push(d.value);
+		clubs.push(d.club);
+		count = count + 1;
+	});
+
+	var x_coordinates = 200;
+
+	var y_scale = d3.scale.linear().domain([1, count]).range([50, count*50]);
+	var width_scale = d3.scale.linear().domain([d3.min(dollar_val), d3.max(dollar_val)]).range([100, 700]);
+	var club_num = 0;
+	svg.selectAll(".bar")
+		.data(commulativeData)
+		.enter().append("rect")
+		.attr("class", "tile")
+		.attr("x", x_coordinates)
+		.attr("y", function() {
+			club_num = club_num + 1;
+			return y_scale(club_num);
+		})
+		.attr("height", 40)
+		.attr("width", function(d) { return width_scale(d.value); })
+		.on("mouseover", function(d) {
+			plotSmallChart(d.club);
+		})
+		.on("mouseout", function() {
+			svg.select(".flow-chart").html("");			
+		});
+
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left").tickFormat(function(d) { return clubs[d-1]; });
+	var axis_x = d3.svg.axis().scale(y_scale).orient("left").tickFormat(function(d) { return "$" + String(dollar_val[d-1]); }).ticks(count);
+
+	svg.append("g").attr("class", "axis").attr("transform", 
+		"translate(200, 20)").call(axis_y);
+	svg.append("g").attr("class", "axis money").attr("transform", 
+		"translate(300, 20)").call(axis_x);
+}
+
+var data = [
+	{club:'Manchester United',value:{year_2013:3165, year_2014:2810, year_2015:3100, year_2016:3317, year_2017:4583}},
+	{club:'Chelsea',value:{year_2013:901, year_2014:868, year_2015:1370, year_2016:1661, year_2017:1845}},
+	{club:'Manchester City',value:{year_2013:689, year_2014:863, year_2015:1380, year_2016:1921, year_2017:2083}},
+	{club:'Liverpool',value:{year_2013:651, year_2014:704, year_2015:982, year_2016:1548, year_2017:1492}},
+	{club:'Arsenal',value:{year_2013:1326, year_2014:1331, year_2015:1310, year_2016:2017, year_2017:1932}}
+	];
+
+var commulativeData = [];
+var indiData = {};
+
+data.forEach(function (d) {
+	var jsonData = {};
+	jsonData["club"] = d.club;
+	indiData[d.club] = [
+	{
+		"year": "2013", "rate" : d.value.year_2013
+	},
+	{
+		"year": "2014", "rate" : d.value.year_2014
+	},
+	{
+		"year": "2015", "rate" : d.value.year_2015
+	},
+	{
+		"year": "2016", "rate" : d.value.year_2016
+	},
+	{
+		"year": "2017", "rate" : d.value.year_2017
+	}
+	];
+	var total_value = d.value.year_2013 + d.value.year_2014 + d.value.year_2015 + d.value.year_2016 + d.value.year_2017;
+	jsonData["value"] = total_value;
+	commulativeData.push(jsonData);
+});
+
+svg_height = 500;
+svg_width = 1500;
+
+svg = d3.select("body").append("svg")
+	.attr("height", svg_height)
+	.attr("width", svg_width)
+	.style("background", "#80808033");
+
+svg.append("g").attr("class", "flow-chart").html("");
+
+plotData();
+
+</script>
+
+
+</html>

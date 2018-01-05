@@ -1,0 +1,80 @@
+Section A
+
+	1. Random Forest
+	Params = -P 100 -I 100 -num-slots 1 -K 0 -M 1.0 -V 0.001 -S 1
+	Time taken to build model: 0.23 seconds
+	Overall accuracy (correctly classified instances): 86.6769 %
+	Confusion Matrix:
+		a   b   <-- classified as
+	  316  41 |   a = 0 
+	   46 250 |   b = 1
+
+	2. Logistic Regression
+	Params = -R 1.0E-8 -M -1 -num-decimal-places 4
+	Time taken to build model: 0.07 seconds
+	Overall Accuracy (correctly classified instances): 86.3706 %
+	Confusion Matrix:
+	      a   b   <-- classified as
+  		302  55 |   a = 0 
+   		34  262 |   b = 1 
+
+   	3. Multilayer Perception
+   	Params = -L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a
+	Time taken to build model: 6.16 seconds
+	Overall Accuracy (correctly classified instances): 83.3078 %
+	Confusion Matrix:
+	 	 a   b   <-- classified as
+  		298  59 |   a = 0
+   		50  246 |   b = 1
+
+   	4. SVM
+   	Params = -F 0 -L 0.01 -R 1.0E-4 -E 500 -C 0.001 -S 1
+   	Time taken to build model: 0.1 seconds	
+   	Overall Accuracy (correctly classified instances): 85.9112 %
+   	Confusion Matrix:
+   	      a   b   <-- classified as
+  		286  71 |   a = 0
+   		 21 275 |   b = 1
+
+    5. Random Tree (my choice)
+    Params = -K 0 -M 1.0 -V 0.001 -S 1
+    Time taken to build model: 0 seconds
+    Overall Accuracy (correctly classified instances): 80.7044 %
+    Confusion Matrix:
+          a   b   <-- classified as
+  		291  66  |   a = 0
+   		 60 236  |   b = 1
+
+Section B
+
+	1a. Random Forest
+	I modified the BagSize percent from 100 to 50
+	Time taken to build model decreased to 0.07 seconds.
+	Accuracy reported was - 87.902%
+	because while building trees for the random forest, the out of bag example size is smaller which decreased computation time. The increase in the accuracy might just be specific to this dataset. 
+
+	1b. Logistic Regression
+	I modified the maximum number of iterations to 1
+	Time taken dropped to 0.01 seconds and the accuracy dropped to 81.317 % because I am limiting the number of iterations to 1 which explains the shorter time as well lower accuracy.
+
+	1c. Multilayer Perception
+	I modified the learning rate from 0.3 to 0.0003 and the number of epochs to 5000.
+	Accuracy of the model increased to 85.9112 % and the time to build the model increased to 71.06 seconds
+	because decreasing the learning rate gave the model to adjust the weights in the neural net in smaller steps thus leading to a more accurate model. Increasing the number of epochs would warrant more training time and thus the training time of the model increased. 
+
+	1d. SVM
+	I modified the lambda value to 1000
+	Accuracy changed to 54.6708 %
+	because increasing lambda fits the model too much to the training data (overfitting) and hence the accuracy drops.
+
+	1e. Random Tree (my choice)
+	I modified the minimum depth of the tree to 1
+	Accuracy changed to 79.0199 %. 
+	Since the depth of the tree is 1, there is only one attribute to check agaist and this affects accuracy because other attributes are not considered. 
+
+	2. The accuracy of my implementation of Random forest was 86.37 % compared to weka's 86.67 %. The similarity in the accuracy might be because of the number of trees used. My implementation uses around 150 trees while the run mentioned above uses 100 trees and the same bagPercent size of 100. I cannot comment on weka's decision tree algorithm as it is unknown to me.
+
+	3. The fastest approach of all used in B1 with the highest accuracy is Random Forests. The model takes only 0.07 seconds to train, uses 100 trees. It reports the highest accuracy at this number of trees. I tried increasing the number of trees and the accuracy slightly reduced.
+
+
+

@@ -1,0 +1,8 @@
+Average Degree - 2.119
+degree of a vertex is the number of edges incident on the vertex. The average degree is the average over all vertices. 
+
+Network Diameter - 3
+it is the greatest distance between any pair of vertices in the graph such that it is shortest possible path. In other words, it is the maximum shortest path between any two vertices in a graph. 
+
+Avg. Path Length - 2.709
+if the lengths of all the shortest paths between all vertices of the graph is listed and an average is taken for the number of paths, then the number obtained is the Avg. path length.

@@ -1,0 +1,618 @@
+<meta charset="utf-8">
+<html>
+<head></head>
+<body>
+
+<style>
+.pagebreak { 
+	page-break-before: always; 
+}
+
+.svg {
+	margin: auto;
+	display: block;
+	padding-top: 50px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.axis text{
+    font-family: sans-serif;
+    font-size: 10px;
+
+}
+div.bar {
+    display: inline-block;
+    width: 20px;
+    height: 75px;
+    margin-right: 2px;
+    background-color: teal;
+}
+
+</style>
+
+<script src="../lib/d3.v3.min.js"></script>
+
+<script type="text/javascript">
+var obj = [];
+d3.csv("diabetes.csv", function(d) {
+	obj = d;
+});
+
+svg_height = 500;
+svg_width = 900;
+
+var svg1 = d3.select("body")
+			.append("svg")
+			.attr("width", svg_width)
+			.attr("height", svg_height)
+			.attr("class", "svg");
+
+d3.select("body").append("div").attr("class", "pagebreak");
+
+var svg2 = d3.select("body")
+			.append("svg")
+			.attr("width", svg_width)
+			.attr("height", svg_height)
+			.attr("class", "svg");
+
+d3.select("body").append("div").attr("class", "pagebreak");
+
+var svg3 = d3.select("body")
+			.append("svg")
+			.attr("width", svg_width)
+			.attr("height", svg_height)
+			.attr("class", "svg");
+
+d3.select("body").append("div").attr("class", "pagebreak");
+
+var svg4 = d3.select("body")
+			.append("svg")
+			.attr("width", svg_width)
+			.attr("height", svg_height)
+			.attr("class", "svg");
+
+d3.select("body").append("div").attr("class", "pagebreak");
+
+var svg5 = d3.select("body")
+			.append("svg")
+			.attr("width", svg_width)
+			.attr("height", svg_height)
+			.attr("class", "svg");
+
+function plot1(obj, svg) {
+	// Add title
+	svg.append("text").text("Plasma Glucose vs Insulin").attr("x", 350).attr("y", 20).style("font-size", 20).attr("font-weight", "bold");
+	// find max plasma glucose
+	plasma_glucose_val = [];
+	insulin_val = [];
+	obj.forEach(function(element) {
+		plasma_glucose_val.push(parseInt(element.plasma_glucose));
+		insulin_val.push(parseInt(element.insulin));
+	});
+
+	// Build Scales
+	mean_x = d3.mean(plasma_glucose_val);
+	y_scale = d3.scale.linear().domain([d3.min(insulin_val), d3.max(insulin_val)]).range([450, 50]);
+	x_scale = d3.scale.linear().domain([d3.min(plasma_glucose_val), d3.max(plasma_glucose_val)]).range([100, 800]);
+	
+	svg.append("g").selectAll("circle")
+		.data(obj)
+		.enter()
+		.append("circle")
+		.filter(function(d) {
+			return parseInt(d.class) == 0;
+		})
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", 3.5)
+		.attr("cx", function(d) { return x_scale(parseInt(d.plasma_glucose)); })
+		.attr("cy", function(d) { return y_scale(parseInt(d.insulin)); })
+		.attr("row", function(d, i){ return i;})
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose;})
+		.attr("insulin", function(d) { return d.insulin; });
+
+	// Load Triangles
+	svg.append("g").selectAll("path")
+		.data(obj)
+		.enter()
+		.append("path")
+		.filter(function(d) {
+			return parseInt(d.class) == 1;
+		})
+		.style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose; })
+		.attr("insulin", function(d) { return d.insulin; })
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", function(d) {
+			return "translate(" +  String(x_scale(parseInt(d.plasma_glucose))) + "," +
+				String(y_scale(parseInt(d.insulin))) + ")";
+		});
+
+	// Add axis names
+	svg.append("text").text("Plasma Glucose").attr("x", x_scale(mean_x)).attr("y", svg_height - 25);
+	svg.append("text").text("Insulin").attr("x", "-100").attr("y", "75").attr("transform", "rotate(270)");
+
+	// Add scales to the plot
+	var axis_x = d3.svg.axis().scale(x_scale).orient("bottom");
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left");
+
+	svg.append("g").attr("class", "axis").attr("transform", "translate(" + 100 + ", 0)").call(axis_y);
+	svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + String(svg_height - 50) + ")").call(axis_x);
+
+	// Add legend 
+	svg.append("g").attr("class", "legend")
+		.append("path").style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", "translate( 125, 50)");
+
+	svg.select(".legend")
+		.append("circle")
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", "3.5")
+		.attr("cx", 125)
+		.attr("cy", 70);
+
+	svg.select(".legend")
+		.append("text")
+		.text("positive")
+		.attr("x", "135")
+		.attr("y", "55");
+
+	svg.select(".legend")
+		.append("text")
+		.text("negative")
+		.attr("x", "135")
+		.attr("y", "75");
+
+	svg.select(".legend")
+		.append("rect")
+		.attr("x", 110)
+		.attr("y", 35)
+		.attr("width", 100)
+		.attr("height", 50)
+		.style("fill", "black")
+		.style("opacity", "0.1");
+}
+
+function plot2(obj, svg) {
+	// Add title
+	svg.append("text").text("BMI vs Blood Pressure").attr("x", 350).attr("y", 20).style("font-size", 20).attr("font-weight", "bold");
+
+	bmi_val = [];
+	bp_val = [];
+	obj.forEach(function(element) {
+		bmi_val.push(parseInt(element.bmi));
+		bp_val.push(parseInt(element.blood_pressure));
+	});
+	
+	mean_x = d3.mean(bmi_val);
+	// Build Scales
+	y_scale = d3.scale.linear().domain([d3.min(bp_val), d3.max(bp_val)]).range([450, 50]);
+	x_scale = d3.scale.linear().domain([d3.min(bmi_val), d3.max(bmi_val)]).range([100, 800]);
+
+	svg.append("g").selectAll("circle")
+		.data(obj)
+		.enter()
+		.append("circle")
+		.filter(function(d) {
+			return parseInt(d.class) == 0;
+		})
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", 3.5)
+		.attr("cx", function(d) { return x_scale(parseInt(d.bmi)); })
+		.attr("cy", function(d) { return y_scale(parseInt(d.blood_pressure)); });
+
+		// Load Triangles
+	svg.append("g").selectAll("path")
+		.data(obj)
+		.enter()
+		.append("path")
+		.filter(function(d) {
+			return parseInt(d.class) == 1;
+		})
+		.style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", function(d) {
+			return "translate(" +  String(x_scale(parseInt(d.bmi))) + "," +
+				String(y_scale(parseInt(d.blood_pressure))) + ")";
+		});
+
+	// Add axis names
+	svg.append("text").text("BMI").attr("x", x_scale(mean_x)).attr("y", svg_height - 25);
+	svg.append("text").text("Blood Pressure").attr("x", "-100").attr("y", "75").attr("transform", "rotate(270)");
+
+	// Add scales to the plot
+	var axis_x = d3.svg.axis().scale(x_scale).orient("bottom");
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left");
+
+	svg.append("g").attr("class", "axis").attr("transform", "translate(" + 100 + ", 0)").call(axis_y);
+	svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + String(svg_height - 50) + ")").call(axis_x);
+
+	// Add legend 
+	svg.append("g").attr("class", "legend")
+		.append("path").style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", "translate( 125, 50)");
+
+	svg.select(".legend")
+		.append("circle")
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", "3.5")
+		.attr("cx", 125)
+		.attr("cy", 70);
+
+	svg.select(".legend")
+		.append("text")
+		.text("positive")
+		.attr("x", "135")
+		.attr("y", "55");
+
+	svg.select(".legend")
+		.append("text")
+		.text("negative")
+		.attr("x", "135")
+		.attr("y", "75");
+
+	svg.select(".legend")
+		.append("rect")
+		.attr("x", 110)
+		.attr("y", 35)
+		.attr("width", 100)
+		.attr("height", 50)
+		.style("fill", "black")
+		.style("opacity", "0.1");
+}
+
+function plot3(obj, svg) {
+	// Add title
+	svg.append("text").text("Plasma Glucose vs Insulin, scaled symbols").attr("x", 350).attr("y", 20).style("font-size", 20).attr("font-weight", "bold");
+	// find max plasma glucose
+	plasma_glucose_val = [];
+	insulin_val = [];
+	obj.forEach(function(element) {
+		plasma_glucose_val.push(parseInt(element.plasma_glucose));
+		insulin_val.push(parseInt(element.insulin));
+	});
+
+	// Build Scales
+	mean_x = d3.mean(plasma_glucose_val);
+	y_scale = d3.scale.linear().domain([d3.min(insulin_val), d3.max(insulin_val)]).range([450, 50]);
+	x_scale = d3.scale.linear().domain([d3.min(plasma_glucose_val), d3.max(plasma_glucose_val)]).range([100, 800]);
+	r_scale = d3.scale.sqrt().domain([0, d3.max(plasma_glucose_val) * d3.max(insulin_val)]).range([4*1.78, 4*3.57]);
+	s_scale = d3.scale.linear().domain([0, d3.max(plasma_glucose_val) * d3.max(insulin_val)]).range([4*10, 4*40]);
+	
+	svg.append("g").selectAll("circle")
+		.data(obj)
+		.enter()
+		.append("circle")
+		.filter(function(d) {
+			return parseInt(d.class) == 0;
+		})
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", function(d) { return r_scale(parseInt(d.plasma_glucose) * parseInt(d.insulin)/Math.PI); })
+		.attr("cx", function(d) { return x_scale(parseInt(d.plasma_glucose)); })
+		.attr("cy", function(d) { return y_scale(parseInt(d.insulin)); })
+		.attr("row", function(d, i){ return i;})
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose;})
+		.attr("insulin", function(d) { return d.insulin; });
+
+	// Load Triangles
+	svg.append("g").selectAll("path")
+		.data(obj)
+		.enter()
+		.append("path")
+		.filter(function(d) {
+			return parseInt(d.class) == 1;
+		})
+		.style("stroke", "red")
+		.style("fill", "none")
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose; })
+		.attr("insulin", function(d) { return d.insulin; })
+		.style("stroke-width", 1)
+		.attr("d", d3.svg.symbol().type('triangle-up').size(function(d)
+			{ return s_scale(parseInt(d.plasma_glucose) * parseInt(d.insulin)); }))
+		.attr("transform", function(d) {
+			return "translate(" +  String(x_scale(parseInt(d.plasma_glucose))) + "," +
+				String(y_scale(parseInt(d.insulin))) + ")";
+		});
+
+	// Add axis names
+	svg.append("text").text("Plasma Glucose").attr("x", x_scale(mean_x)).attr("y", svg_height - 25);
+	svg.append("text").text("Insulin").attr("x", "-100").attr("y", "75").attr("transform", "rotate(270)");
+
+	// Add scales to the plot
+	var axis_x = d3.svg.axis().scale(x_scale).orient("bottom");
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left");
+
+	svg.append("g").attr("class", "axis").attr("transform", "translate(" + 100 + ", 0)").call(axis_y);
+	svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + String(svg_height - 50) + ")").call(axis_x);
+
+	// Add legend 
+	svg.append("g").attr("class", "legend")
+		.append("path").style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", "translate( 125, 50)");
+
+	svg.select(".legend")
+		.append("circle")
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", "3.5")
+		.attr("cx", 125)
+		.attr("cy", 70);
+
+	svg.select(".legend")
+		.append("text")
+		.text("positive")
+		.attr("x", "135")
+		.attr("y", "55");
+
+	svg.select(".legend")
+		.append("text")
+		.text("negative")
+		.attr("x", "135")
+		.attr("y", "75");
+
+	svg.select(".legend")
+		.append("rect")
+		.attr("x", 110)
+		.attr("y", 35)
+		.attr("width", 100)
+		.attr("height", 50)
+		.style("fill", "black")
+		.style("opacity", "0.1");
+}
+
+function plot4(obj, svg) {
+	// Add title
+	svg.append("text").text("Plasma Glucose vs Insulin (Square Root Scale)").attr("x", 350).attr("y", 20).style("font-size", 20).attr("font-weight", "bold");
+	// find max plasma glucose
+	plasma_glucose_val = [];
+	insulin_val = [];
+	obj.forEach(function(element) {
+		plasma_glucose_val.push(parseInt(element.plasma_glucose));
+		insulin_val.push(parseInt(element.insulin));
+	});
+
+	// Build Scales
+	mean_x = d3.mean(plasma_glucose_val);
+	y_scale = d3.scale.sqrt().domain([d3.min(insulin_val), d3.max(insulin_val)]).range([450, 50]);
+	x_scale = d3.scale.linear().domain([d3.min(plasma_glucose_val), d3.max(plasma_glucose_val)]).range([100, 800]);
+	
+	svg.append("g").selectAll("circle")
+		.data(obj)
+		.enter()
+		.append("circle")
+		.filter(function(d) {
+			return parseInt(d.class) == 0;
+		})
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", 3.5)
+		.attr("cx", function(d) { return x_scale(parseInt(d.plasma_glucose)); })
+		.attr("cy", function(d) { return y_scale(parseInt(d.insulin)); })
+		.attr("row", function(d, i){ return i;})
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose;})
+		.attr("insulin", function(d) { return d.insulin; });
+
+	// Load Triangles
+	svg.append("g").selectAll("path")
+		.data(obj)
+		.enter()
+		.append("path")
+		.filter(function(d) {
+			return parseInt(d.class) == 1;
+		})
+		.style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose; })
+		.attr("insulin", function(d) { return d.insulin; })
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", function(d) {
+			return "translate(" +  String(x_scale(parseInt(d.plasma_glucose))) + "," +
+				String(y_scale(parseInt(d.insulin))) + ")";
+		});
+
+	// Add axis names
+	svg.append("text").text("Plasma Glucose").attr("x", x_scale(mean_x)).attr("y", svg_height - 25);
+	svg.append("text").text("Insulin").attr("x", "-100").attr("y", "75").attr("transform", "rotate(270)");
+
+	// Add scales to the plot
+	var axis_x = d3.svg.axis().scale(x_scale).orient("bottom");
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left");
+
+	svg.append("g").attr("class", "axis").attr("transform", "translate(" + 100 + ", 0)").call(axis_y);
+	svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + String(svg_height - 50) + ")").call(axis_x);
+
+	// Add legend 
+	svg.append("g").attr("class", "legend")
+		.append("path").style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", "translate( 125, 50)");
+
+	svg.select(".legend")
+		.append("circle")
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", "3.5")
+		.attr("cx", 125)
+		.attr("cy", 70);
+
+	svg.select(".legend")
+		.append("text")
+		.text("positive")
+		.attr("x", "135")
+		.attr("y", "55");
+
+	svg.select(".legend")
+		.append("text")
+		.text("negative")
+		.attr("x", "135")
+		.attr("y", "75");
+
+	svg.select(".legend")
+		.append("rect")
+		.attr("x", 110)
+		.attr("y", 35)
+		.attr("width", 100)
+		.attr("height", 50)
+		.style("fill", "black")
+		.style("opacity", "0.1");
+}
+
+function plot5(obj, svg) {
+	// Add title
+	svg.append("text").text("Plasma Glucose vs Insulin (log-scaled)").attr("x", 350).attr("y", 20).style("font-size", 20).attr("font-weight", "bold");
+	// find max plasma glucose
+	plasma_glucose_val = [];
+	insulin_val = [];
+	obj.forEach(function(element) {
+		plasma_glucose_val.push(parseInt(element.plasma_glucose));
+		insulin_val.push(parseInt(element.insulin));
+	});
+
+	// Build Scales
+	mean_x = d3.mean(plasma_glucose_val);
+	y_scale = d3.scale.log().domain([1, d3.max(insulin_val)]).range([450, 50]);
+	x_scale = d3.scale.linear().domain([d3.min(plasma_glucose_val), d3.max(plasma_glucose_val)]).range([100, 800]);
+	
+	svg.append("g").selectAll("circle")
+		.data(obj)
+		.enter()
+		.append("circle")
+		.filter(function(d) {
+			return parseInt(d.class) == 0;
+		})
+		.filter(function(d) {
+			return parseInt(d.insulin) != 0;
+		})
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", 3.5)
+		.attr("cx", function(d) { return x_scale(parseInt(d.plasma_glucose)); })
+		.attr("cy", function(d) { return y_scale(parseInt(d.insulin)); })
+		.attr("row", function(d, i){ return i;})
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose;})
+		.attr("insulin", function(d) { return d.insulin; });
+
+	// Load Triangles
+	svg.append("g").selectAll("path")
+		.data(obj)
+		.enter()
+		.append("path")
+		.filter(function(d) {
+			return parseInt(d.class) == 1;
+		})
+		.filter(function(d) {
+			return parseInt(d.insulin) != 0;
+		})
+		.style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.attr("plasma_glucose", function(d) { return d.plasma_glucose; })
+		.attr("insulin", function(d) { return d.insulin; })
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", function(d) {
+			return "translate(" +  String(x_scale(parseInt(d.plasma_glucose))) + "," +
+				String(y_scale(parseInt(d.insulin))) + ")";
+		});
+
+	// Add axis names
+	svg.append("text").text("Plasma Glucose").attr("x", x_scale(mean_x)).attr("y", svg_height - 25);
+	svg.append("text").text("Insulin").attr("x", "-100").attr("y", "75").attr("transform", "rotate(270)");
+
+	// Add scales to the plot
+	var axis_x = d3.svg.axis().scale(x_scale).orient("bottom");
+	var axis_y = d3.svg.axis().scale(y_scale).orient("left");
+
+	svg.append("g").attr("class", "axis").attr("transform", "translate(" + 100 + ", 0)").call(axis_y);
+	svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + String(svg_height - 50) + ")").call(axis_x);
+
+	// Add legend 
+	svg.append("g").attr("class", "legend")
+		.append("path").style("stroke", "red")
+		.attr("d", d3.svg.symbol().type("triangle-up"))
+		.style("fill", "none")
+		.style("stroke-width", 1)
+		.attr("r", 3.5)
+		.attr("transform", "translate( 125, 50)");
+
+	svg.select(".legend")
+		.append("circle")
+		.style("fill", "#f000")
+		.style("stroke", "blue")
+		.attr("r", "3.5")
+		.attr("cx", 125)
+		.attr("cy", 70);
+
+	svg.select(".legend")
+		.append("text")
+		.text("positive")
+		.attr("x", "135")
+		.attr("y", "55");
+
+	svg.select(".legend")
+		.append("text")
+		.text("negative")
+		.attr("x", "135")
+		.attr("y", "75");
+		
+	svg.select(".legend")
+		.append("rect")
+		.attr("x", 110)
+		.attr("y", 35)
+		.attr("width", 100)
+		.attr("height", 50)
+		.style("fill", "black")
+		.style("opacity", "0.1");
+}
+
+setTimeout(function() {plot1(obj, svg1)
+}, 1000);
+
+setTimeout(function() {plot2(obj, svg2)
+}, 1000);
+
+setTimeout(function() {plot3(obj, svg3)
+}, 1000);
+
+setTimeout(function() {plot4(obj, svg4)
+}, 1000);
+
+setTimeout(function() {plot5(obj, svg5)
+}, 1000);
+
+</script>
+
+</body>
+</html>

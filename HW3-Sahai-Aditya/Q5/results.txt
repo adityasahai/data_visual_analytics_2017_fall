@@ -1,0 +1,29 @@
+Part 1
+Mean Absolute Error: 			1656.147651
+Root Mean Squared Error:		2456.983209
+Relative Absolute Error:		0.276606
+Relative Squared Error:			0.089608
+Coefficient of Determination:	0.910392
+
+Part 2
+Mean Absolute Error:			1265.001752
+Root Mean Squared Error:		1783.328763
+Relative Absolute Error:		0.253181
+Relative Squared Error:			0.067781
+Coefficient of Determination:	0.932219
+
+Part 3
+Regression Model - Poisson Regression
+Mean Absolute Error:			3478.406213
+Root Mean Squared Error:		4893.996848
+Relative Absolute Error:		0.580956
+Relative Squared Error:			0.355525
+Coefficient of Determination:	0.644475
+
+Decision Forest Regression
+Negative Log Likelihood: 		426.351322	
+Mean Absolute Error: 			1416.157168
+Root Mean Squared Error:		2041.451874	
+Relative Absolute Error:		0.236523
+Relative Squared Error: 		0.061862
+Coefficient of Determination:	0.938138

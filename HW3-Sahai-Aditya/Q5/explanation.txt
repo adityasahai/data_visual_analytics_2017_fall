@@ -1,0 +1,2 @@
+Poisson regression model is a logarithmic model because of which the results have changed from a linear model.
+Decision trees divides the data into smaller sub-spaces and performs better than the linear model.

@@ -1,0 +1,215 @@
+<meta charset="utf-8">
+
+<html>
+
+<style>
+.node rect {
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+.link:hover {
+  stroke-opacity: .5;
+}
+svg {
+	margin: 50px;
+	display: block;
+}
+.tip {
+	background-color: #000000b3;
+	color: white;
+	font-family: Courier;
+	font-size: small;
+}
+</style>
+<head></head>
+<body></body>
+
+<script src="../lib/d3.v3.min.js"></script>
+<script src="../lib/sankey.js"></script>
+<script src="../lib/d3.tip.v0.6.3.js"></script>
+
+<script>
+
+function populateNodes() {
+	var i = 0;
+	let s = new Set();
+	teams.forEach(function(d) {
+		var jsonData = {};
+		jsonData["node"] = i;
+		jsonData["name"] = d.driver;
+		nodes.push(jsonData);
+		d_drivers[d.driver] = i;
+		s.add(d.team);
+		i++;
+	});
+	s.forEach(function(d) {
+		var jsonData = {};
+		jsonData["node"] = i;
+		jsonData["name"] = d;
+		nodes.push(jsonData);
+		d_teams[d] = i;
+		i++;
+	});
+	let b = new Set();
+	races.forEach(function (d) {
+		b.add(d.race);
+	});
+	b.forEach(function(d) {
+		var jsonData = {};
+		jsonData["node"] = i;
+		jsonData["name"] = d;
+		nodes.push(jsonData);
+		d_races[d] = i;
+		i++;
+	});
+}
+
+function populateLinks() {
+	teams.forEach(function(d) {
+		var jsonData = {};
+		jsonData["source"] = d_drivers[d.driver];
+		jsonData["target"] = d_teams[d.team];
+		jsonData["value"] = parseInt(d.points);
+		links.push(jsonData);
+	});
+	races.forEach(function(d) {
+		var jsonData = {};
+		jsonData["target"] = d_drivers[d.driver];
+		jsonData["source"] = d_races[d.race];
+		jsonData["value"] = parseInt(d.points);
+		links.push(jsonData);
+	});
+}
+
+function plotData() {
+
+	// Tool Tips
+	tip_link = d3.tip().attr("class", "tip")
+		.html(function(d) {
+			return d.source.name + " - " + d.target.name + " - " + d.value;
+		});
+
+	tip_node = d3.tip().attr("class", "tip")
+		.html(function(d) {
+			return d.name + " - " + d.value;
+		});
+
+	// Set the sankey diagram properties
+	var sankey = d3.sankey()
+	    .nodeWidth(20)
+	    .nodePadding(30)
+	    .size([width, height]);
+
+	var path = sankey.link();
+	// load the data
+	  sankey
+	      .nodes(nodes)
+	      .links(links)
+	      .layout(5);
+
+	// Adding the links
+	var link = svg.append("g").selectAll(".link")
+	      .data(links)
+	      .enter()
+	      .append("path")
+	      .attr("class", "link")
+	      .attr("d", path)
+	      .style("stroke-width", function(d) { 
+	      	return Math.max(1, d.dy); 
+	      })
+	      .on("mouseover", tip_link.show)
+	      .on("mouseout", tip_link.hide);
+	link.call(tip_link);
+	
+	// Adding the nodes
+	var node = svg.append("g").selectAll(".node")
+	      .data(nodes)
+	      .enter()
+	      .append("g")
+	      .attr("class", "node")
+	      .attr("transform", function(d) { 
+			  return "translate(" + d.x + "," + d.y + ")"; });
+	node.call(tip_node);
+
+	// add the rectangles for the nodes
+	  node.append("rect")
+	      .attr("height", function(d) { return d.dy; })
+	      .attr("width", sankey.nodeWidth())
+	      .style("fill", function(d) { 
+			  return d.color = color(d.name.replace(/ .*/, "")); })
+	      .style("stroke", function(d) { 
+			  return d3.rgb(d.color).darker(2); })
+	      .on("mouseover", tip_node.show)
+	      .on("mouseout", tip_node.hide);
+
+	// Naming the nodes
+	  node.append("text")
+	      .attr("y", function(d) { return d.dy / 2; })
+	      .attr("dy", ".35em")
+	      .attr("text-anchor", "end")
+	      .attr("transform", null)
+	      .text(function(d) { return d.name; })
+	      .filter(function(d) { return d.x < width / 2; })
+	      .attr("x", 100 + sankey.nodeWidth());
+}
+
+// Load teams data
+var teams = [];
+d3.csv("teams.csv", function(d) {
+	teams = d;
+});
+
+var races = [];
+d3.csv("races.csv", function(d) {
+	races = d;
+});
+
+nodes = [];
+d_drivers = {};
+d_races = {};
+d_teams = {};
+links = [];
+
+setTimeout(function() {
+	populateNodes();
+}, 1000);
+
+setTimeout(function() {
+	populateLinks();
+}, 1000);
+
+var units = "Points";
+var width = 1500;
+var height = 1900;
+
+var formatNumber = d3.format(",.0f"),    // zero decimal places
+    format = function(d) { return formatNumber(d) + " " + units; },
+    color = d3.scale.category20();
+
+// append the svg canvas to the page
+var svg = d3.select("body").append("svg")
+    .attr("width", width + 100)
+    .attr("height", height + 100)
+  .append("g")
+    .attr("transform", 
+          "translate(" + 50 + "," + 50 + ")");
+
+setTimeout(function() {
+	plotData();
+}, 1500);
+
+</script>
+
+</html>

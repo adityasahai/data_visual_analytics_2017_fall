@@ -1,0 +1,1 @@
+I am using a linear method to scale the radii (2 x degrees for each node) of each node. Given the size of the SVG and the number and variance of the degrees, this configuration made the most visual sense.

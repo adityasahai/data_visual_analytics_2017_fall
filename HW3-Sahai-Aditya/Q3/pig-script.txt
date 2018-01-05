@@ -1,0 +1,11 @@
+data = LOAD 's3://cse6242-2017fall-aws-big/*' using PigStorage('\t') as (n_gram:chararray, year:int, occurences:double, books:double);
+
+filter_by_count = filter data by occurences >= 200.0;
+filter_by_count_books = filter filter_by_count by books >= 10.0;
+group_ngrams = group filter_by_count_books by n_gram;
+a = foreach group_ngrams GENERATE FLATTEN(filter_by_count_books.n_gram) as ngram, SUM(filter_by_count_books.occurences)/SUM(filter_by_count_books.books) as average;
+b = DISTINCT a;
+c = ORDER b by average DESC, ngram ASC;
+d = LIMIT c 10;
+
+store d into 's3://cse6242-asahai9/output-big' using PigStorage('\t');

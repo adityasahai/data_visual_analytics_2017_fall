@@ -1,0 +1,1 @@
+Force atlas 2 was chosen because it keeps edge crossing to a minimum and is reasonably symmetric in this case. Prevent overlap was checked to make sure that nodes don’t overlap. The gravity value was decreased and the scaling factor was increased to spread out the graph.
